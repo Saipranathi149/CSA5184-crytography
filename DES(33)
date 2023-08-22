@@ -1,0 +1,41 @@
+#include <stdio.h>
+#include <stdint.h>
+
+// Initial Permutation (IP) table
+static const int initial_permutation[] = {58, 50, 42, 34, 26, 18, 10, 2,
+                                          60, 52, 44, 36, 28, 20, 12, 4,
+                                          62, 54, 46, 38, 30, 22, 14, 6,
+                                          64, 56, 48, 40, 32, 24, 16, 8,
+                                          57, 49, 41, 33, 25, 17, 9, 1,
+                                          59, 51, 43, 35, 27, 19, 11, 3,
+                                          61, 53, 45, 37, 29, 21, 13, 5,
+                                          63, 55, 47, 39, 31, 23, 15, 7};
+
+// Simplified DES encryption
+void des_encrypt(uint64_t *input, uint64_t *output, uint64_t key) {
+    // Apply initial permutation
+    uint64_t permuted_input = 0;
+    for (int i = 0; i < 64; i++) {
+        int bit_position = initial_permutation[i] - 1;
+        permuted_input |= ((*input >> i) & 1) << bit_position;
+    }
+
+    // Apply simplified round function (XOR with key)
+    uint64_t round_output = permuted_input ^ key;
+
+    // Store the round output as the encrypted output
+    *output = round_output;
+}
+
+int main() {
+    uint64_t plaintext = 0x0123456789ABCDEF; // 64-bit plaintext
+    uint64_t key = 0x133457799BBCDFF1;       // 56-bit key
+
+    uint64_t ciphertext;
+    des_encrypt(&plaintext, &ciphertext, key);
+
+    printf("Plaintext:  0x%016llx\n", plaintext);
+    printf("Ciphertext: 0x%016llx\n", ciphertext);
+
+    return 0;
+}
