@@ -1,0 +1,67 @@
+#include <stdio.h>
+#include <stdint.h>
+
+// Define SHA-3 constants
+#define RATE 1024
+#define CAPACITY 576
+
+// Internal state matrix
+typedef struct {
+    uint64_t lanes[5][5];
+} State;
+
+// Initialize internal state with zeros in capacity portion
+void initializeState(State *state) {
+    for (int x = 0; x < 5; x++) {
+        for (int y = 0; y < 5; y++) {
+            if (x * 5 + y < CAPACITY / 64) {
+                state->lanes[x][y] = 0;
+            } else {
+                // Assume the lanes in the first message block have at least one nonzero bit
+                state->lanes[x][y] = 0xFFFFFFFFFFFFFFFFULL;
+            }
+        }
+    }
+}
+
+// Check if all lanes in capacity portion have at least one nonzero bit
+int allLanesNonzero(State *state) {
+    for (int x = 0; x < 5; x++) {
+        for (int y = 0; y < 5; y++) {
+            if (x * 5 + y < CAPACITY / 64) {
+                if (state->lanes[x][y] == 0) {
+                    return 0;
+                }
+            }
+        }
+    }
+    return 1;
+}
+
+int main() {
+    State state;
+    
+    // Initialize internal state
+    initializeState(&state);
+    
+    int round = 0;
+    while (!allLanesNonzero(&state)) {
+        // Perform permutation (actual SHA-3 permutation steps are omitted)
+        // This is where you would apply theta, rho, pi, chi, and iota operations
+        
+        // For simplicity, we'll just increment the zero lanes by 1
+        for (int x = 0; x < 5; x++) {
+            for (int y = 0; y < 5; y++) {
+                if (state.lanes[x][y] == 0 && x * 5 + y < CAPACITY / 64) {
+                    state.lanes[x][y]++;
+                }
+            }
+        }
+        
+        round++;
+    }
+    
+    printf("All lanes in capacity portion are nonzero after %d rounds.\n", round);
+    
+    return 0;
+}
