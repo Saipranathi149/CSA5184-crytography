@@ -1,0 +1,56 @@
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+from Crypto.Random import get_random_bytes
+
+# Key and IV (Initialization Vector)
+key = get_random_bytes(16)
+iv = get_random_bytes(16)
+
+def encrypt_ecb(data):
+    cipher = AES.new(key, AES.MODE_ECB)
+    encrypted_data = cipher.encrypt(pad(data, AES.block_size))
+    return encrypted_data
+
+def decrypt_ecb(encrypted_data):
+    cipher = AES.new(key, AES.MODE_ECB)
+    decrypted_data = unpad(cipher.decrypt(encrypted_data), AES.block_size)
+    return decrypted_data
+
+def encrypt_cbc(data):
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    encrypted_data = cipher.encrypt(pad(data, AES.block_size))
+    return encrypted_data
+
+def decrypt_cbc(encrypted_data):
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    decrypted_data = unpad(cipher.decrypt(encrypted_data), AES.block_size)
+    return decrypted_data
+
+def encrypt_cfb(data):
+    cipher = AES.new(key, AES.MODE_CFB, iv, segment_size=128)  # Adjust segment_size as needed
+    encrypted_data = cipher.encrypt(data)
+    return encrypted_data
+
+def decrypt_cfb(encrypted_data):
+    cipher = AES.new(key, AES.MODE_CFB, iv, segment_size=128)  # Adjust segment_size as needed
+    decrypted_data = cipher.decrypt(encrypted_data)
+    return decrypted_data
+
+# Input plaintext
+plaintext = b'This is a test message. ' * 2  # Total length is 32 bytes
+
+# Encryption
+encrypted_ecb = encrypt_ecb(plaintext)
+encrypted_cbc = encrypt_cbc(plaintext)
+encrypted_cfb = encrypt_cfb(plaintext)
+
+# Decryption
+decrypted_ecb = decrypt_ecb(encrypted_ecb)
+decrypted_cbc = decrypt_cbc(encrypted_cbc)
+decrypted_cfb = decrypt_cfb(encrypted_cfb)
+
+# Print results
+print("Original plaintext:", plaintext)
+print("ECB decrypted:", decrypted_ecb)
+print("CBC decrypted:", decrypted_cbc)
+print("CFB decrypted:", decrypted_cfb)
