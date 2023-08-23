@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+int modInverse(int a, int m) {
+    a = a % m;
+    for (int x = 1; x < m; x++)
+        if ((a * x) % m == 1)
+            return x;
+    return -1;
+}
+
+void affineEncrypt(char text[], int a, int b) {
+    for (int i = 0; text[i] != '\0'; i++) {
+        if (isalpha(text[i])) {
+            char base = islower(text[i]) ? 'a' : 'A';
+            text[i] = (a * (text[i] - base) + b) % 26 + base;
+        }
+    }
+}
+
+void affineDecrypt(char text[], int a, int b) {
+    int a_inverse = modInverse(a, 26);
+    if (a_inverse == -1) {
+        printf("Error: The value of 'a' is not invertible.\n");
+        return;
+    }
+
+    for (int i = 0; text[i] != '\0'; i++) {
+        if (isalpha(text[i])) {
+            char base = islower(text[i]) ? 'a' : 'A';
+            int x = (a_inverse * ((text[i] - base) - b + 26)) % 26;
+            text[i] = x + base;
+        }
+    }
+}
+
+int main() {
+    int a, b;
+    char text[1000];
+
+    printf("Enter the value of 'a' (must be invertible): ");
+    scanf("%d", &a);
+
+    printf("Enter the value of 'b': ");
+    scanf("%d", &b);
+
+    printf("Enter the text to encrypt: ");
+    scanf(" %[^\n]s", text);
+
+    affineEncrypt(text, a, b);
+    printf("Encrypted text: %s\n", text);
+
+    affineDecrypt(text, a, b);
+    printf("Decrypted text: %s\n", text);
+
+    return 0;
+}
