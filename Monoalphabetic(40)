@@ -1,0 +1,37 @@
+import collections
+import string
+
+ALPHABET = string.ascii_uppercase
+
+def calculate_frequencies(text):
+    frequencies = collections.Counter()
+    for char in text:
+        if char.isalpha():
+            frequencies[char.upper()] += 1
+    return frequencies
+
+def decrypt(text, key):
+    decrypted = []
+    for char in text:
+        if char.isalpha():
+            decrypted_char = ALPHABET[(ALPHABET.index(char.upper()) - key) % 26]
+            decrypted.append(decrypted_char.lower() if char.islower() else decrypted_char)
+        else:
+            decrypted.append(char)
+    return ''.join(decrypted)
+
+def main():
+    ciphertext = input("Enter the ciphertext: ")
+    top_n = int(input("Enter the number of possible plaintexts to display: "))
+
+    frequencies = calculate_frequencies(ciphertext)
+    likely_key = ALPHABET.index(frequencies.most_common(1)[0][0])
+
+    print("\nPossible plaintexts:")
+    for i in range(top_n):
+        key = (likely_key - i) % 26
+        plaintext = decrypt(ciphertext, key)
+        print(f"{i + 1}. {plaintext}")
+
+if __name__ == "__main__":
+    main()
