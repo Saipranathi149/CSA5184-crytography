@@ -1,0 +1,63 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#define ALPHABET_SIZE 26
+#define NUM_TOP_PLAINTEXTS 10
+
+// Function to decrypt text using a given shift value
+void decrypt(char *text, int shift) {
+    int length = strlen(text);
+    for (int i = 0; i < length; i++) {
+        if (isalpha(text[i])) {
+            char base = isupper(text[i]) ? 'A' : 'a';
+            text[i] = ((text[i] - base - shift + ALPHABET_SIZE) % ALPHABET_SIZE) + base;
+        }
+    }
+}
+
+// Function to calculate letter frequency in the given text
+void calculateFrequency(char *text, int frequency[ALPHABET_SIZE]) {
+    int length = strlen(text);
+    for (int i = 0; i < length; i++) {
+        if (isalpha(text[i])) {
+            char ch = tolower(text[i]);
+            frequency[ch - 'a']++;
+        }
+    }
+}
+
+int main() {
+    char ciphertext[1000];
+    int shift;
+
+    // Read ciphertext and shift value
+    printf("Enter the ciphertext: ");
+    fgets(ciphertext, sizeof(ciphertext), stdin);
+    ciphertext[strcspn(ciphertext, "\n")] = '\0'; // Remove newline character
+
+    printf("Enter the known shift value: ");
+    scanf("%d", &shift);
+
+    int frequency[ALPHABET_SIZE] = {0};
+    calculateFrequency(ciphertext, frequency);
+
+    // Decrypt and print top plaintext candidates
+    printf("\nTop %d possible plaintexts:\n", NUM_TOP_PLAINTEXTS);
+    for (int i = 0; i < NUM_TOP_PLAINTEXTS; i++) {
+        int maxFreqIndex = 0;
+        for (int j = 1; j < ALPHABET_SIZE; j++) {
+            if (frequency[j] > frequency[maxFreqIndex]) {
+                maxFreqIndex = j;
+            }
+        }
+
+        decrypt(ciphertext, (maxFreqIndex - ('e' - 'a') + ALPHABET_SIZE) % ALPHABET_SIZE);
+        printf("%2d. %s\n", i + 1, ciphertext);
+
+        frequency[maxFreqIndex] = 0; // Remove this letter from consideration
+    }
+
+    return 0;
+}
