@@ -1,0 +1,69 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+// Define the English letter frequency table (source: Wikipedia)
+const double english_frequencies[26] = {
+    0.08167, 0.01492, 0.02782, 0.04253, 0.12702, 0.02228, 0.02015,
+    0.06094, 0.06966, 0.00153, 0.00772, 0.04025, 0.02406, 0.06749,
+    0.07507, 0.01929, 0.00095, 0.05987, 0.06327, 0.09056, 0.02758,
+    0.00978, 0.02360, 0.00150, 0.01974, 0.00074
+};
+
+// Function to calculate the chi-square value for a given frequency distribution
+double calculate_chi_square(double observed[], double expected[], int size) {
+    double chi_square = 0.0;
+    for (int i = 0; i < size; i++) {
+        chi_square += (observed[i] - expected[i]) * (observed[i] - expected[i]) / expected[i];
+    }
+    return chi_square;
+}
+
+// Function to perform monoalphabetic substitution decryption
+void decrypt_monoalphabetic(const char *cipher_text, int shift) {
+    int text_length = strlen(cipher_text);
+    char decrypted[text_length + 1];
+    
+    for (int i = 0; i < text_length; i++) {
+        if (isalpha(cipher_text[i])) {
+            char base = isupper(cipher_text[i]) ? 'A' : 'a';
+            decrypted[i] = (cipher_text[i] - base - shift + 26) % 26 + base;
+        } else {
+            decrypted[i] = cipher_text[i];
+        }
+    }
+    decrypted[text_length] = '\0';
+    
+    printf("Shift %d: %s\n", shift, decrypted);
+}
+
+int main() {
+    char cipher_text[1000];
+    printf("Enter the cipher text: ");
+    fgets(cipher_text, sizeof(cipher_text), stdin);
+    
+    int text_length = strlen(cipher_text);
+    double observed_frequencies[26] = {0.0};
+    
+    // Count observed frequencies of letters in the cipher text
+    for (int i = 0; i < text_length; i++) {
+        if (isalpha(cipher_text[i])) {
+            int index = tolower(cipher_text[i]) - 'a';
+            observed_frequencies[index]++;
+        }
+    }
+    
+    // Normalize the observed frequencies
+    for (int i = 0; i < 26; i++) {
+        observed_frequencies[i] /= text_length;
+    }
+    
+    // Perform letter frequency attack
+    printf("\nPossible Decryptions:\n");
+    for (int shift = 0; shift < 26; shift++) {
+        decrypt_monoalphabetic(cipher_text, shift);
+    }
+    
+    return 0;
+}
